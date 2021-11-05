@@ -1,23 +1,20 @@
-import albumentations as alb
-from albumentations.pytorch import ToTensorV2
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch.nn.utils.rnn import pad_sequence
-import torch.utils.data as data
-from torchvision import transforms
-import numpy as np
-import imagesize
-import logging
-import glob
 import os
-from os.path import join
-from collections import defaultdict
-import pickle
-from PIL import Image
 import cv2
-from transformers import PreTrainedTokenizerFast
+import glob
+import torch
+import pickle
+import logging
+import imagesize
+import numpy as np
+import albumentations as alb
+import torch.nn.functional as F
+
+from os.path import join
 from tqdm.auto import tqdm
+from collections import defaultdict
+from torch.nn.utils.rnn import pad_sequence
+from albumentations.pytorch import ToTensorV2
+from transformers import PreTrainedTokenizerFast
 
 
 train_transform = alb.Compose(

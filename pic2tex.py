@@ -1,3 +1,4 @@
+import io
 import os
 import re
 import sys
@@ -108,7 +109,7 @@ def call_model(args, model, image_resizer, tokenizer, img=None):
     return pred
 
 
-if __name__ == "__main__":
+def get_predict(path_file):
     parser = argparse.ArgumentParser(description='Use model', add_help=False)
     parser.add_argument('-t', '--temperature', type=float, default=.333, help='Softmax sampling frequency')
     parser.add_argument('-c', '--config', type=str, default='settings/config.yaml')
@@ -125,36 +126,16 @@ if __name__ == "__main__":
         os.chdir(latexocr_path)
 
     args, *objs = initialize(arguments)
-    while True:
-        instructions = input('>>> ')
-        possible_file = instructions.strip()
-        ins = possible_file.lower()
-        if ins == 'x':
-            break
-        elif ins == 'no_resize':
-            setattr(args, ins, not getattr(args, ins, False))
-            print('set %s to %s' % (ins, getattr(args, ins)))
-            continue
-        elif os.path.isfile(possible_file):
-            args.file = possible_file
-        else:
-            t = re.match(r't=([\.\d]+)', ins)
-            if t is not None:
-                t = t.groups()[0]
-                args.temperature = float(t)+1e-8
-                print('new temperature: T=%.3f' % args.temperature)
-                continue
+
+    if os.path.isfile(path_file):
+        args.file = path_file
+   
+    if args.file:
+        img = Image.open(args.file)
+    else:
         try:
-            img = None
-            if args.file:
-                img = Image.open(args.file)
-            else:
-                try:
-                    img = ImageGrab.grabclipboard()
-                except:
-                    pass
-            pred = call_model(args, *objs, img=img)
-            print(pred)
-        except KeyboardInterrupt:
+            img = ImageGrab.grabclipboard()
+        except:
             pass
-        args.file = None
+    pred = call_model(args, *objs, img=img)
+    return pred
