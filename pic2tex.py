@@ -1,6 +1,4 @@
-import io
 import os
-import re
 import sys
 import yaml
 import torch
@@ -11,7 +9,6 @@ import pandas.io.clipboard as clipboard
 
 from PIL import Image
 from munch import Munch
-from PIL import ImageGrab
 from timm.models.resnetv2 import ResNetV2
 from dataset.dataset import test_transform
 from timm.models.layers import StdConv2dSame
@@ -109,33 +106,25 @@ def call_model(args, model, image_resizer, tokenizer, img=None):
     return pred
 
 
-def get_predict(path_file):
+def get_predict(path_img):
     parser = argparse.ArgumentParser(description='Use model', add_help=False)
     parser.add_argument('-t', '--temperature', type=float, default=.333, help='Softmax sampling frequency')
     parser.add_argument('-c', '--config', type=str, default='settings/config.yaml')
     parser.add_argument('-m', '--checkpoint', type=str, default='checkpoints/weights.pth')
     parser.add_argument('-s', '--show', action='store_true', help='Show the rendered predicted latex code')
-    parser.add_argument('-f', '--file', type=str, default=None, help='Predict LaTeX code from image file instead of clipboard')
+    parser.add_argument('-f', '--file', type=str, default='', help='Predict LaTeX code from image file instead of clipboard')
     parser.add_argument('-k', '--katex', action='store_true', help='Render the latex code in the browser')
     parser.add_argument('--no-cuda', action='store_true', help='Compute on CPU')
     parser.add_argument('--no-resize', action='store_true', help='Resize the image beforehand')
-    arguments = parser.parse_args()
-    latexocr_path = os.path.dirname(sys.argv[0])
-    if latexocr_path != '':
-        sys.path.insert(0, latexocr_path)
-        os.chdir(latexocr_path)
+    arguments, _ = parser.parse_known_args()
 
     args, *objs = initialize(arguments)
 
-    if os.path.isfile(path_file):
-        args.file = path_file
-   
+    if os.path.isfile(path_img):
+        args.file = path_img
+    
     if args.file:
         img = Image.open(args.file)
-    else:
-        try:
-            img = ImageGrab.grabclipboard()
-        except:
-            pass
+
     pred = call_model(args, *objs, img=img)
     return pred

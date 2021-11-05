@@ -1,6 +1,8 @@
 import base64
+import pic2tex
+
 from flask import Flask, jsonify, request
-from pic2tex import get_predict
+
 
 app = Flask(__name__)
 
@@ -23,12 +25,13 @@ def predict():
         if not allowed_file(file.filename):
             return jsonify({'error': 'format not supported'})
 
-        # try:
-        decode = open('dataset/img.png', 'wb')
-        decode.write(base64.b64decode(file.read()))
-        decode.close()
+        try:
+            decode = open('dataset/img.png', 'wb')
+            decode.write(base64.b64decode(file.read()))
+            decode.close()
 
-        tex = get_predict('dataset/img.png')
-        return jsonify({'msg': 'predict', 'latex': tex})
-        # except:
-        #     return jsonify({'error': 'error during prediction'})
+            tex = pic2tex.get_predict('dataset/img.png')
+
+            return jsonify({'msg': 'predicted', 'tex': tex})
+        except:
+            return jsonify({'error': 'error during prediction'})
